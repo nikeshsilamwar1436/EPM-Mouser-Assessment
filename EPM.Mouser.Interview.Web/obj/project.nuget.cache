@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "4rKAYZN2mJmNxymQWRwrInQFpfr3NcZ3IcyL74og0N9mRbEWnvnd96Y0PRNDN9Ox3sv8tiQ9hsWnGHQTdFDHQA==",
+  "success": true,
+  "projectFilePath": "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj",
+  "expectedPackageFiles": [
+    "/Users/nikesh/.nuget/packages/microsoft.netcore.app.ref/6.0.15/microsoft.netcore.app.ref.6.0.15.nupkg.sha512",
+    "/Users/nikesh/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.15/microsoft.aspnetcore.app.ref.6.0.15.nupkg.sha512",
+    "/Users/nikesh/.nuget/packages/microsoft.netcore.app.host.osx-arm64/6.0.15/microsoft.netcore.app.host.osx-arm64.6.0.15.nupkg.sha512"
+  ],
+  "logs": []
+}
