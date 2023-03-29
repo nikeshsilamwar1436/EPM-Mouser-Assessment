@@ -1,18 +1,73 @@
-﻿@{
-    ViewData["Title"] = "Test Page";
+﻿@using EPM.Mouser.Interview.Models
+@{
+    ViewData["Title"] = "EPM Product";
+    var products = ViewData["products"] as List<Product>;
 }
 
-
-<h1>In Stock items</h1>
+<div class="bg-secondary bg-opacity-10">
+    <div class="container">
+        <h4>Avaliablity of Products</h4>
+    </div>
+</div>
 
 @*
     Display a table here which shows the products with any Available stock
     - use the bootstrap table styling
     - Available stock = Total Stock - Reserved Stock
     - Columns shown:
-        - action => with a link to a placeholder product detail page. 
+        - action => with a link to a placeholder product detail page.
         - Name
         - Total Amount in stock
         - Available stock (this should be orange if < 10 and red < zero)
-
 *@
+
+<div class="container">
+    <table class="table table-striped">
+        <tr class="bg-dark text-white">
+            <th>
+                Name
+            </th>
+            <th>
+                InStockQuantity
+            </th>
+            <th>
+                ReservedQuantity
+            </th>
+            <th>
+                AvailableStock
+            </th>
+            <th>
+                Action
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in products)
+        {
+
+            string style = (item.InStockQuantity - item.ReservedQuantity) < 0 ? "background-color:red" :
+                (item.InStockQuantity - item.ReservedQuantity) < 10 ? "background-color:orange" : "" ;
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InStockQuantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReservedQuantity)
+                </td>
+
+                <td style="@style">
+                    @(item.InStockQuantity - item.ReservedQuantity)
+                </td>
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = @item.Id })
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

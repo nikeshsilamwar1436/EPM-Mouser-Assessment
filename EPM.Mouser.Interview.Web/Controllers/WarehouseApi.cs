@@ -1,19 +1,51 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using EPM.Mouser.Interview.Models;
+using EPM.Mouser.Interview.Data;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.Text.RegularExpressions;
 
 namespace EPM.Mouser.Interview.Web.Controllers
 {
+    [Route("api/warehouse")]
     public class WarehouseApi : Controller
     {
+        private readonly IWarehouseRepository _warehouseRepository;
+        public WarehouseApi(IWarehouseRepository warehouseRepository)
+        {
+            _warehouseRepository = warehouseRepository;
+        }
 
+
+        [HttpGet]
+        [Route("")]
+        public async Task<List<Product>> GetProductList()
+        {
+            var products = await _warehouseRepository.List();
+            if (products == null)
+            {
+                throw new Exception("Id is not Found");
+            }
+            return products;
+        }
         /*
          *  Action: GET
          *  Url: api/warehouse/id
-         *  This action should return a single product for an Id
+         *  This action should return a single product for an IdS
          */
         [HttpGet]
-        public JsonResult GetProduct(long id)
+        [Route("{id}")]
+        public async Task<Product> GetProduct(long id)
         {
-            return Json(null);
+            var product = await _warehouseRepository.Get(id);
+            if (product == null)
+            {
+                throw new Exception("Id is not Found");
+            }
+            return product;
         }
 
         /*
@@ -23,9 +55,12 @@ namespace EPM.Mouser.Interview.Web.Controllers
          *  In stock means In Stock Quantity is greater than zero and In Stock Quantity is greater than the Reserved Quantity
          */
         [HttpGet]
-        public JsonResult GetPublicInStockProducts()
+        [Route("InStock")]
+        public async Task<List<Product>> GetPublicInStockProducts()
         {
-            return Json(null);
+            var products = await _warehouseRepository.List();
+            var availableProducts =  await _warehouseRepository.Query(products => products.InStockQuantity > 0 && products.InStockQuantity > products.ReservedQuantity);
+            return availableProducts;
         }
 
 
@@ -46,10 +81,33 @@ namespace EPM.Mouser.Interview.Web.Controllers
          *     - ErrorReason.QuantityInvalid when: A negative number was requested
          *     - ErrorReason.InvalidRequest when: A product for the id does not exist
         */
-        public JsonResult OrderItem()
+        [HttpPost]
+        [Route("orderItem")]
+        public async Task<JsonResult> OrderItem([FromBody] UpdateQuantityRequest request)
         {
-            return Json(null);
-        }
+            var product = await _warehouseRepository.Get(request.Id);
+            if (request.Quantity < 0)
+            {
+                if (product != null)
+                {
+                    product.ReservedQuantity += request.Quantity;
+                    if (product.ReservedQuantity > product.InStockQuantity)
+                    {
+                        await _warehouseRepository.UpdateQuantities(product);
+                        return Json(new UpdateResponse()
+                        {
+                            Success = true
+                        });
+                        
+                    }
+                    return Json(BadRequest(ErrorReason.NotEnoughQuantity));
+                }
+               
+              return Json(BadRequest(ErrorReason.InvalidRequest));
+               
+            }
+            return Json(BadRequest(ErrorReason.QuantityInvalid));
+    }
 
         /*
          *  Url: api/warehouse/ship
@@ -70,9 +128,35 @@ namespace EPM.Mouser.Interview.Web.Controllers
          *     - ErrorReason.QuantityInvalid when: A negative number was requested
          *     - ErrorReason.InvalidRequest when: A product for the id does not exist
         */
-        public JsonResult ShipItem()
+        [HttpPost]
+        [Route("shipItem")]
+        public async Task<JsonResult> ShipItem([FromBody] UpdateQuantityRequest request)
         {
-            return Json(null);
+            var product = await _warehouseRepository.Get(request.Id);
+            if (request.Quantity < 0)
+            {
+                if (product != null)
+                {
+                    var maxRerserved = product.ReservedQuantity - request.Quantity;
+                    var maxInstock = product.InStockQuantity - request.Quantity;
+                    product.ReservedQuantity = Math.Max(maxRerserved, 0);
+                    product.InStockQuantity = Math.Max(maxInstock, 0);
+                    if (product.InStockQuantity < 0)
+                    {
+                        await _warehouseRepository.UpdateQuantities(product);
+                        return Json(new UpdateResponse()
+                        {
+                            Success = true
+                        });
+
+                    }
+                    return Json(BadRequest(ErrorReason.NotEnoughQuantity));
+                }
+                
+                return Json(BadRequest(ErrorReason.InvalidRequest));
+            }
+            return Json(BadRequest(ErrorReason.QuantityInvalid));
+
         }
 
         /*
@@ -92,9 +176,29 @@ namespace EPM.Mouser.Interview.Web.Controllers
         *     - ErrorReason.QuantityInvalid when: A negative number was requested
         *     - ErrorReason.InvalidRequest when: A product for the id does not exist
         */
-        public JsonResult RestockItem()
+        [HttpPost()]
+        [Route("restock")]
+        public async Task<JsonResult> RestockItem([FromBody] UpdateQuantityRequest request)
         {
-            return Json(null);
+            var product = await _warehouseRepository.Get(request.Id);
+            if (request.Quantity < 0)
+            {
+                if (product != null)
+                {
+                    product.InStockQuantity += request.Quantity;
+                    await _warehouseRepository.UpdateQuantities(product);
+                    return Json(new UpdateResponse()
+                    {
+                        Success = true
+                    });
+
+                }
+               
+                return Json(BadRequest(ErrorReason.InvalidRequest));
+
+            }
+            return Json(BadRequest(ErrorReason.QuantityInvalid));
+
         }
 
         /*
@@ -125,9 +229,39 @@ namespace EPM.Mouser.Interview.Web.Controllers
         *     - ErrorReason.QuantityInvalid when: A negative number was requested for the In Stock Quantity
         *     - ErrorReason.InvalidRequest when: A blank or empty name is requested
         */
-        public JsonResult AddNewProduct()
+        [HttpPost()]
+        [Route("add")]
+        public async Task<JsonResult> AddNewProduct([FromBody] Product requestData)
         {
-            return Json(null);
+
+            if (requestData.InStockQuantity > 0)
+            {
+                var products = await _warehouseRepository.List();
+                var nameTrim = requestData.Name.Trim();
+                var duplicateExists = products.Where(y => y.Name == nameTrim).FirstOrDefault();
+                if (duplicateExists != null)
+                {
+                    string duplicateName = duplicateExists.Name;
+                    bool result = Regex.Match(duplicateName, @"^.*?\([^\d]*(\d+)[^\d]*\).*$").Success;
+                    int i = result ? int.Parse(Regex.Match(duplicateName, @"\(([^()]+)\)*").Groups[1].Value) : 1;
+                    requestData.Name = result ? Regex.Replace(duplicateName, @"\((.*?)\)", string.Empty) + $"({(i + 1)})": requestData.Name + $"({(i)})";
+                }
+                
+             if (string.IsNullOrWhiteSpace(nameTrim) || requestData.ReservedQuantity == 0)
+                {
+                    var result = await _warehouseRepository.Insert(requestData);
+                    return Json(new CreateResponse<Product>()
+                    {
+                        Success = true
+                    });
+
+                }
+                else
+                {
+                    return Json(BadRequest(ErrorReason.InvalidRequest));
+                }
+            }
+            return Json(BadRequest(ErrorReason.QuantityInvalid));
         }
     }
 }

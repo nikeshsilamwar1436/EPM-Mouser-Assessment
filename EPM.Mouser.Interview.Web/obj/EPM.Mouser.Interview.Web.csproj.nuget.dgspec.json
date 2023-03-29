@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj": {}
+    "/Users/nikesh/Desktop/project/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj": {}
   },
   "projects": {
-    "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj": {
+    "/Users/nikesh/Desktop/project/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj",
+        "projectUniqueName": "/Users/nikesh/Desktop/project/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj",
         "projectName": "EPM.Mouser.Interview.Web",
-        "projectPath": "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj",
+        "projectPath": "/Users/nikesh/Desktop/project/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/EPM.Mouser.Interview.Web.csproj",
         "packagesPath": "/Users/nikesh/.nuget/packages/",
-        "outputPath": "/Users/nikesh/Desktop/myproject/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/obj/",
+        "outputPath": "/Users/nikesh/Desktop/project/EPM-Mouser-Assessment/EPM.Mouser.Interview.Web/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/nikesh/.nuget/NuGet/NuGet.Config"

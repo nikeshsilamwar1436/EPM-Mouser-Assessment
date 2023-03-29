@@ -1,0 +1,54 @@
+@using EPM.Mouser.Interview.Models
+@{
+    ViewData["Title"] = "EPM InStock Product";
+    var products = ViewData["Instock"] as List<Product>;
+}
+
+<div class="bg-secondary bg-opacity-10">
+    <div class="container">
+        <h4>Products InStock</h4>
+    </div>
+</div>
+
+<div class="container">
+    <table class="table table-striped">
+        <tr class="bg-dark text-white">
+            <th>
+                Name
+            </th>
+            <th>
+                InStockQuantity
+            </th>
+            <th>
+                ReservedQuantity
+            </th>
+            <th>
+                AvailableStock
+            </th>
+
+            <th></th>
+        </tr>
+
+        @foreach (var item in products)
+        {
+
+            <tr>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InStockQuantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ReservedQuantity)
+                </td>
+
+                <td>
+                    @(item.InStockQuantity - item.ReservedQuantity)
+                </td>
+            </tr>
+        }
+
+    </table>
+</div>

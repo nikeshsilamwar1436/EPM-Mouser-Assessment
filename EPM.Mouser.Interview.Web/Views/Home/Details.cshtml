@@ -1,0 +1,31 @@
+@using EPM.Mouser.Interview.Models
+
+
+@{
+    var details = ViewData["Details"] as Product;
+}
+
+<div class="container">
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Id
+            <span class="badge bg-primary">@details.Id</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Name
+            <span class="badge bg-primary ">@details.Name</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            In Stock Quantity
+            <span class="badge bg-primary">@details.InStockQuantity.</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Reserved Quantity
+            <span class="badge bg-primary">@details.ReservedQuantity.</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            Available stock
+            <span class="badge bg-primary">@(details.InStockQuantity - details.ReservedQuantity).</span>
+        </li>
+    </ul>
+</div>
